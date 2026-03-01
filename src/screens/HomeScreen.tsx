@@ -1,94 +1,161 @@
 import React from 'react';
+import { ThemeMap } from '../theme/ThemeMap';
 import { 
   View, 
   Text, 
-  TextInput, 
-  TouchableOpacity, 
   StyleSheet, 
   SafeAreaView, 
+  TextInput, 
+  TouchableOpacity, 
   KeyboardAvoidingView, 
-  Platform 
+  Platform,
+  Keyboard,
+  TouchableWithoutFeedback
 } from 'react-native';
 import { useJournalStore } from '../store/useJournalStore';
-import { getTodayDateString } from '../utils/dateHelpers';
 
 export default function HomeScreen() {
-  // Zustand store'dan state ve fonksiyonları çekiyoruz
-  const { entryText, wordCount, setEntryText } = useJournalStore();
+  // sentimentScore'u da içeri aktarıyoruz
+  const { text, wordCount, setText, saveEntry, sentimentScore } = useJournalStore();
   
-  // Bugünü YYYY-MM-DD formatında alıyoruz
-  const today = getTodayDateString();
+  const today = new Date().toISOString().split('T')[0];
 
-  const handleSave = () => {
-    // Şimdilik sadece konsola yazdırıyoruz. Firestore entegrasyonu bir sonraki adımda olacak.
-    console.log("Kaydedilecek metin:", entryText);
-  };
-
+  // Aktif temayı belirliyoruz. Eğer bir sebepten bulamazsa her zaman '0' (Nötr) temayı yedek (fallback) olarak kullan!
+  const currentTheme = ThemeMap[sentimentScore ?? 0] || ThemeMap[0];
   return (
-    <SafeAreaView style={styles.container}>
-      {/* Klavye açıldığında butonun altta kalmaması için KeyboardAvoidingView kullanıyoruz */}
+    // SafeAreaView'un arkaplanı değişiyor
+    <SafeAreaView style={[styles.safeArea, { backgroundColor: currentTheme.background }]}>
       <KeyboardAvoidingView 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardView}
+        style={styles.container} 
+        behavior="padding" 
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20} 
       >
-        {/* Üst Kısım: Tarih ve Streak */}
-        <View style={styles.header}>
-          <Text style={styles.dateText}>{today}</Text>
-          <Text style={styles.streakText}>🔥 Streak: 0</Text> 
-        </View>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+          <View style={styles.inner}>
+            
+            <View style={styles.header}>
+              {/* Rozetlerin rengi değişiyor */}
+              <TouchableOpacity style={[styles.infoBadge, { backgroundColor: currentTheme.primary }]}>
+                <Text style={styles.infoBadgeText}>Takvim</Text>
+              </TouchableOpacity>
+              
+              <View style={[styles.infoBadge, { backgroundColor: currentTheme.primary }]}>
+                <Text style={styles.infoBadgeText}>{today}</Text>
+              </View>
+              
+              <View style={[styles.infoBadge, { backgroundColor: currentTheme.primary }]}>
+                <Text style={styles.infoBadgeText}>Streak: 0</Text>
+              </View>
+            </View>
 
-        {/* Orta Kısım: Yazı Alanı */}
-        <View style={styles.content}>
-          <Text style={styles.placeholderText}>Bugün neler yaşadın?</Text>
-          
-          <TextInput
-            style={styles.textInput}
-            multiline={true}
-            placeholder="Buraya yazmaya başla..."
-            value={entryText}
-            onChangeText={setEntryText}
-            textAlignVertical="top" // Android'de yazının üstten başlaması için
-          />
-          
-          {/* Canlı Kelime Sayacı */}
-          <Text style={styles.wordCount}>Kelime: {wordCount}</Text>
-        </View>
+            <Text style={styles.subtitle}>Bugün neler yaşadın?</Text>
 
-        {/* Alt Kısım: Kaydet Butonu */}
-        <TouchableOpacity 
-          style={[styles.saveButton, wordCount === 0 && styles.saveButtonDisabled]} 
-          onPress={handleSave}
-          disabled={wordCount === 0} // Yazı yoksa butona basılamaz
-        >
-          <Text style={styles.saveButtonText}>Kaydet</Text>
-        </TouchableOpacity>
+            {/* Yazı alanının arkaplanı ve çerçevesi değişiyor */}
+            <View style={[styles.inputContainer, { backgroundColor: currentTheme.surface, borderColor: currentTheme.primary }]}>
+              <TextInput
+                style={[styles.textInput, { color: currentTheme.text }]}
+                multiline
+                placeholder="Buraya yazmaya başla..."
+                placeholderTextColor="#94A3B8"
+                value={text}
+                onChangeText={setText}
+                textAlignVertical="top"
+              />
+            </View>
+
+            <View style={styles.footer}>
+              {/* Kelime sayacı rengi değişiyor */}
+              <View style={[styles.wordCountBadge, { backgroundColor: currentTheme.primary }]}>
+                <Text style={styles.infoBadgeText}>Kelime: {wordCount}</Text>
+              </View>
+              
+              {/* Kaydet butonu rengi değişiyor */}
+              <TouchableOpacity style={[styles.saveButton, { backgroundColor: currentTheme.primary }]} onPress={saveEntry}>
+                <Text style={styles.saveButtonText}>Kaydet</Text>
+              </TouchableOpacity>
+            </View>
+
+          </View>
+        </TouchableWithoutFeedback>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F5F5F5' },
-  keyboardView: { flex: 1, padding: 20 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20, marginTop: 10 },
-  dateText: { fontSize: 18, fontWeight: 'bold', color: '#333' },
-  streakText: { fontSize: 16, fontWeight: 'bold', color: '#FF8C00' },
-  content: { flex: 1 },
-  placeholderText: { fontSize: 18, color: '#666', marginBottom: 15, fontWeight: '500' },
-  textInput: { 
-    flex: 1, 
-    backgroundColor: '#FFF', 
-    borderRadius: 12, 
-    padding: 15, 
-    fontSize: 16, 
-    elevation: 2, 
-    shadowColor: '#000', 
-    shadowOpacity: 0.1, 
-    shadowRadius: 4, 
-    shadowOffset: { width: 0, height: 2 } 
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#0F172A',
   },
-  wordCount: { textAlign: 'right', marginTop: 10, color: '#888', fontSize: 14, fontWeight: 'bold' },
-  saveButton: { backgroundColor: '#4CAF50', padding: 15, borderRadius: 12, alignItems: 'center', marginTop: 10 },
-  saveButtonDisabled: { backgroundColor: '#A5D6A7' },
-  saveButtonText: { color: '#FFF', fontSize: 18, fontWeight: 'bold' }
+  container: {
+    flex: 1,
+  },
+  inner: {
+    flex: 1,
+    padding: 20,
+    paddingBottom: 20, // Alt butonlara nefes aldırır
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  infoBadge: {
+    backgroundColor: '#1E3A8A',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    elevation: 2,
+  },
+  infoBadgeText: {
+    fontSize: 13,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
+  subtitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#E2E8F0',
+    marginBottom: 10,
+  },
+  inputContainer: {
+    flex: 1, // Ekran küçüldüğünde bu alan esneyip daralacak
+    backgroundColor: '#1E293B',
+    borderRadius: 12,
+    padding: 15,
+    borderWidth: 1,
+    borderColor: '#334155',
+    marginBottom: 20,
+  },
+  textInput: {
+    flex: 1,
+    fontSize: 16,
+    color: '#F8FAFC',
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: 10, // iPhone çentiği veya Android navbar'ı için ekstra güvenli boşluk
+  },
+  wordCountBadge: {
+    backgroundColor: '#3B82F6',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 10,
+  },
+  saveButton: {
+    backgroundColor: '#1E3A8A',
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  saveButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+  },
 });

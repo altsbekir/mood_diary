@@ -1,27 +1,41 @@
 import { create } from 'zustand';
+import { analyzeSentiment } from '../utils/sentiment'; // Az önce yazdığımız algoritmayı içeri aktarıyoruz
 
-// Store'umuzun tip tanımlamaları (TypeScript için)
 interface JournalState {
-  entryText: string;
+  text: string;
   wordCount: number;
-  setEntryText: (text: string) => void;
-  clearEntry: () => void;
+  sentimentScore: number | null; // Henüz analiz yapılmadıysa null
+  setText: (newText: string) => void;
+  saveEntry: () => void; // Kaydetme fonksiyonumuz
 }
 
-// Zustand store'u oluşturuyoruz
-export const useJournalStore = create<JournalState>((set) => ({
-  entryText: '',
+export const useJournalStore = create<JournalState>((set, get) => ({
+  text: '',
   wordCount: 0,
+  sentimentScore: null,
   
-  // Kullanıcı yazı yazdıkça hem metni güncelleyen hem de kelimeyi sayan fonksiyon
-  setEntryText: (text) => {
-    // Metni boşluklardan bölerek kelime sayısını hesaplıyoruz
-    const words = text.trim().split(/\s+/);
-    const count = text.trim() === '' ? 0 : words.length;
-    
-    set({ entryText: text, wordCount: count });
+  setText: (newText) => {
+    const count = newText.trim().length > 0 ? newText.trim().split(/\s+/).length : 0;
+    set({ 
+      text: newText, 
+      wordCount: count 
+    });
   },
-  
-  // Kayıt sonrası alanı temizlemek için
-  clearEntry: () => set({ entryText: '', wordCount: 0 }),
+
+  saveEntry: () => {
+    const currentText = get().text;
+    
+    // Eğer metin boşsa işlem yapma
+    if (currentText.trim() === '') return;
+
+    // 1. Duygu skorunu hesapla
+    const score = analyzeSentiment(currentText);
+    
+    // 2. Skoru state'e kaydet (Şimdilik state'e, yakında Firestore'a kaydedeceğiz)
+    set({ sentimentScore: score });
+
+    // Test için konsola yazdırıyoruz (Gerçek cihazda veya emülatörde loglarda görebilirsin)
+    console.log(`Kaydedilen Metin: "${currentText}"`);
+    console.log(`Hesaplanan Duygu Skoru: ${score}`);
+  },
 }));
