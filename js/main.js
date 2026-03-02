@@ -12,7 +12,8 @@ const db = getFirestore(app);
 let myChart = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-    renderChart(); // Sayfa açılınca grafiği çiz
+    renderChart(); 
+    checkTodayMood(); // <-- YENİ EKLENDİ: Sayfa açıldığında bugünün rengini bul!
     
     const noteArea = document.getElementById('note');
     if (noteArea) {
@@ -23,35 +24,72 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// --- YENİ FONKSİYON: BUGÜNÜN RENGİNİ HAFIZADA TUT ---
+async function checkTodayMood() {
+    try {
+        // Firebase'den en son yazılan günlüğü çek
+        const q = query(collection(db, 'journals'), orderBy('createdAt', 'desc'));
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+            const lastNote = querySnapshot.docs[0].data(); // En baştaki en yeni nottur
+            const todayDate = new Date().toISOString().split('T')[0]; // Bugünün tarihi
+
+            // Eğer veritabanındaki en son not BUGÜNE aitse, onun rengini ekrana bas!
+            if (lastNote.date === todayDate) {
+                updateUI(lastNote.sentimentScore);
+                
+                // Hatta kullanıcıya küçük bir mesaj da verelim
+                document.getElementById('analysis').innerText = "Bugünkü modun hafızada... 🌿";
+            } else {
+                updateUI(0); // Bugün henüz bir şey yazılmamışsa varsayılan Gece Mavisi
+            }
+        }
+    } catch (error) {
+        console.log("Bugünün modu çekilemedi:", error);
+    }
+}
+
+// --- js/main.js İÇİNDEKİ updateUI FONKSİYONU ---
 function updateUI(score) {
     const analysisText = document.getElementById('analysis');
     const container = document.querySelector('.container');
+    const body = document.body;
     
-    // 5'li NLP Skalamıza Göre UI Değişimi
+    // Geçişin yumuşak olması için CSS hilesi
+    body.style.transition = "background 1s ease-in-out";
+    
+    // 5'li NLP Skalamıza Göre Şık ve Soft UI Değişimi
     switch (score) {
         case 2:
             analysisText.innerText = "Harika görünüyorsun! Enerjin tavan! 🌟";
-            container.style.borderLeft = "10px solid #22c55e"; // Zümrüt Yeşili
+            container.style.borderLeft = "10px solid #10b981"; // Soft Zümrüt
+            body.style.background = "linear-gradient(120deg, #064e3b, #0f172a)"; // Koyu Orman Yeşili
             break;
         case 1:
             analysisText.innerText = "Günün iyi geçiyor gibi, ne güzel! 🙂";
-            container.style.borderLeft = "10px solid #84cc16"; // Açık Yeşil
+            container.style.borderLeft = "10px solid #38bdf8"; // Gök Mavisi
+            body.style.background = "linear-gradient(120deg, #0c4a6e, #0f172a)"; // Koyu Okyanus Mavisi
             break;
         case 0:
             analysisText.innerText = "Dengeli ve sakin bir gün... 🌿";
-            container.style.borderLeft = "10px solid #3b82f6"; // Mavi
+            container.style.borderLeft = "10px solid #64748b"; // Soft Gri-Mavi
+            body.style.background = "linear-gradient(120deg, #0f172a, #1e293b)"; // Orijinal Gece Mavisi
             break;
         case -1:
             analysisText.innerText = "Biraz yorgun veya modun düşük gibi... 🍂";
-            container.style.borderLeft = "10px solid #f97316"; // Turuncu
+            container.style.borderLeft = "10px solid #c084fc"; // Soft Mor
+            body.style.background = "linear-gradient(120deg, #2e1065, #0f172a)"; // Koyu Melankolik Mor
             break;
         case -2:
             analysisText.innerText = "Zor bir gün... Derin bir nefes al, geçecek. 🌧️";
-            container.style.borderLeft = "10px solid #ef4444"; // Kırmızı
+            container.style.borderLeft = "10px solid #f43f5e"; // Soft Gül Kurusu / Kırmızı
+            body.style.background = "linear-gradient(120deg, #4c0519, #0f172a)"; // Koyu Şarap Rengi
             break;
         default:
             analysisText.innerText = "Düşüncelerini özgür bırak... 🌿";
-            container.style.borderLeft = "10px solid #3b82f6";
+            container.style.borderLeft = "10px solid #64748b";
+            body.style.background = "linear-gradient(120deg, #0f172a, #1e293b)";
     }
 }
 
@@ -79,7 +117,6 @@ window.saveNote = async function() {
 
         alert("Notun başarıyla buluta kaydedildi! 🚀");
         textArea.value = ""; 
-        updateUI(0); // UI'ı sıfırla
         renderChart(); // Grafiği yenile
         
     } catch (error) {
@@ -128,7 +165,7 @@ async function renderChart() {
     }
 }
 
-// --- 6. GEÇMİŞ GÜNLÜKLERİ BULUTTAN OKUMA ---
+// --- 6. GEÇMİŞ GÜNLÜKLERİ BULUTTAN OKUMA VE STREAK (SERİ) HESAPLAMA ---
 window.showDiary = async function() {
     document.getElementById('app').style.display = 'none';
     document.getElementById('diaryPage').style.display = 'block';
@@ -138,19 +175,21 @@ window.showDiary = async function() {
     list.innerHTML = "<p>Buluttan veriler getiriliyor... ⏳</p>";
 
     try {
-        // En yeniden en eskiye sıralayarak çek
         const q = query(collection(db, 'journals'), orderBy('createdAt', 'desc'));
         const querySnapshot = await getDocs(q);
         
         if (querySnapshot.empty) {
-            list.innerHTML = '<p>Henüz kayıt yok.</p>';
+            list.innerHTML = '<p>Henüz kayıt yok. İlk günlüğünü yazarak seriye başla! 🚀</p>';
             return;
         }
 
         let html = "";
+        let datesArray = []; // Seri hesaplamak için tarihleri toplayacağız
+
         querySnapshot.forEach((doc) => {
             const e = doc.data();
-            // Skora göre küçük bir emoji rozeti
+            datesArray.push(e.date); // Tarihi diziye at
+
             let emoji = "🌿";
             if(e.sentimentScore === 2) emoji = "🌟";
             else if(e.sentimentScore === 1) emoji = "🙂";
@@ -167,13 +206,81 @@ window.showDiary = async function() {
                 </div>
             `;
         });
-        list.innerHTML = html;
+
+        // 🔥 Ateşli Seri Hesaplama
+        const streakCount = calculateStreak(datesArray);
+        
+        // Streak Rozetini HTML'in en tepesine ekle
+        let streakBadge = "";
+        if (streakCount > 0) {
+            streakBadge = `
+                <div style="background: linear-gradient(135deg, #f97316, #ef4444); color: white; padding: 10px; border-radius: 10px; text-align: center; margin-bottom: 15px; font-weight: bold; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);">
+                    🔥 Harika! ${streakCount} gündür aralıksız günlük yazıyorsun!
+                </div>
+            `;
+        } else {
+            streakBadge = `
+                <div style="background: rgba(255,255,255,0.05); color: #94a3b8; padding: 10px; border-radius: 10px; text-align: center; margin-bottom: 15px; font-size: 14px;">
+                    💡 Bugün bir şeyler yazarak serini başlatabilirsin!
+                </div>
+            `;
+        }
+
+        list.innerHTML = streakBadge + html;
         
     } catch (error) {
         console.error("Okuma hatası:", error);
         list.innerHTML = '<p style="color:#ef4444;">Veriler yüklenirken hata oluştu.</p>';
     }
 };
+
+// --- 🔥 STREAK (ATEŞLİ SERİ) MATEMATİĞİ ---
+function calculateStreak(dates) {
+    if (!dates || dates.length === 0) return 0;
+
+    // Aynı güne birden fazla kayıt girilmişse onları teke düşür (Unique)
+    const uniqueDates = [...new Set(dates)];
+    
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Saatleri sıfırla ki sadece günü kıyaslayalım
+
+    let streak = 0;
+    let checkDate = new Date(today); // Kontrol edeceğimiz gün (Önce bugün)
+
+    // En son not BUGÜN veya en kötü DÜN yazılmış mı? Yazılmamışsa seri çoktan kırılmıştır (0 döner).
+    const lastNoteDate = new Date(uniqueDates[0]);
+    lastNoteDate.setHours(0,0,0,0);
+    
+    const diffTime = Math.abs(today - lastNoteDate);
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+    
+    if (diffDays > 1) return 0; // Seri bozulmuş
+
+    // Geriye doğru günleri kontrol et
+    for (let i = 0; i < uniqueDates.length; i++) {
+        const noteDate = new Date(uniqueDates[i]);
+        noteDate.setHours(0, 0, 0, 0);
+
+        // Eğer aradığımız günde not yazılmışsa seriyi artır
+        if (noteDate.getTime() === checkDate.getTime()) {
+            streak++;
+            checkDate.setDate(checkDate.getDate() - 1); // Bir önceki güne geç
+        } 
+        // Eğer aradığımız gün değilse ama dünkü kontrol için 1 hak tanıyorsak (bugün yazmamış ama dün yazmışsa devam et)
+        else if (i === 0 && diffDays === 1) {
+            checkDate.setDate(checkDate.getDate() - 1); // Bugünü atla, dünden saymaya başla
+            if (noteDate.getTime() === checkDate.getTime()) {
+                streak++;
+                checkDate.setDate(checkDate.getDate() - 1);
+            }
+        }
+        else {
+            break; // Zincir kırıldı! Döngüyü durdur.
+        }
+    }
+    
+    return streak;
+}
 
 // --- 7. MENÜ VE SAYFA KONTROLLERİ ---
 window.showHome = function() {

@@ -1,4 +1,3 @@
-// js/firebaseConfig.example.js
 export const firebaseConfig = {
     apiKey: "AIzaSyCDY_Wf-mPJZAI8t3HfiD43aDXaMbwnOx4",
     authDomain: "mood-diary-2cce3.firebaseapp.com",

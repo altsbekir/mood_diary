@@ -11,6 +11,9 @@ const negativeRoots = [
   'felaket', 'acı', 'yalnız', 'mutsuz', 'başarısız', 'umutsuz'
 ];
 
+// Pekiştiriciler (Duygunun şiddetini 2'ye katlar)
+const amplifiers = ['çok', 'aşırı', 'en', 'fazla', 'inanılmaz', 'bayağı', 'müthiş', 'olağanüstü', 'fazlasıyla'];
+
 // -ma, -me, -mı, -mi, -sız, -siz vb.
 const negationRegex = /(m[aeıioöuü]y?|m[ae]z|m[ae]d|s[ıiuü]z)/;
 
@@ -53,15 +56,22 @@ export function analyzeSentiment(text) {
       if (wordScore !== 0) {
         const remainder = word.slice(matchedRoot.length);
         let isNegated = negationRegex.test(remainder);
+        let isAmplified = false; // YENİ: Pekiştirici kontrolü
 
         if (!isNegated) {
-          // Geriye doğru 3 kelime (Aynı yan cümlecik içinde)
+          // Geriye doğru 3 kelime
           const start = Math.max(0, i - 3);
           for (let j = start; j < i; j++) {
             if (words[j] === 'hiç' || words[j] === 'asla' || words[j] === 'zerre') {
               isNegated = true; break;
             }
+            // YENİ: Eğer kelimeden önce "çok", "aşırı" varsa gücü 2'ye katla!
+            if (amplifiers.includes(words[j])) {
+              isAmplified = true; 
+            }
           }
+          
+          // ... (İleriye doğru bakma kodları aynen kalacak) ...
           
           // İleriye doğru 3 kelime VE yan cümleciğin en son kelimesi (Yüklem)
           const end = Math.min(words.length - 1, i + 3);
@@ -87,6 +97,9 @@ export function analyzeSentiment(text) {
             }
           }
         }
+
+        // YENİ: Pekiştirici varsa skoru 2 ile çarp (+1 ise +2, -1 ise -2 olur)
+        if (isAmplified) wordScore *= 2; 
 
         // Eğer olumsuzluk bulduysa o kelimenin duygusunu tam tersine çevir!
         if (isNegated) wordScore *= -1;
