@@ -1,156 +1,63 @@
-# 📓 Dijital Günlük (MVP)
+```markdown
+# 🧠 PsyNote Web MVP - Single Source of Truth (SSOT)
 
-Bu doküman, projenin teknik sınırlarını, mimari kararlarını ve MVP (Minimum Viable Product) hedeflerini belirleyen **Tek Doğru Kaynak (Single Source of Truth)** belgesidir. Ekibe yeni katılan üyeler ve projeye destek veren AI asistanları tüm kararlarında bu belgeyi baz almalıdır.
-
-## 🎯 Proje Özeti
-Kullanıcıların her gün kısa günlükler yazmasını teşvik eden, tasarım odaklı bir mobil dijital günlük uygulaması.
-* **Amaç:** Kullanıcıya farkındalık ve düzenli yazma alışkanlığı kazandırmak.
-* **Kısıt:** Uygulama kesinlikle bir *terapi iddiası* taşımaz. Yazılan metinler kural tabanlı (lokal) analiz edilerek, uygulamanın teması o günün duygu durumuna göre şekillenir.
-
-## ⏳ Süre & Hedef
-* **Proje Süresi:** 4 Hafta (1 Sprint)
-* **Hedef:** Çalışan, şık, hatasız ve sunulabilir bir MVP ortaya çıkarmak.
-* **Kırmızı Çizgi:** "Over-engineering" (aşırı mühendislik) ve "Scope creep" (kapsam kayması) kesinlikle yasaktır.
+Bu belge, "Mood Diary" mobil uygulamamızın web platformundaki kardeşi olan **PsyNote** projesi için Tek Gerçeklik Kaynağıdır (SSOT). Ekibimizdeki herkesin mimari kararları, klasör yapısını ve proje vizyonunu net bir şekilde anlaması için hazırlanmıştır.
 
 ---
 
-## 🧭 Kullanıcı Senaryosu (Değiştirilemez)
+## 1. Proje Özeti ve Vizyon
+**PsyNote**, kullanıcıların günlük düşüncelerini kaydettikleri, yazdıkları metin üzerinden canlı duygu analizi yapan ve ruh hali istatistiklerini görselleştiren akıllı bir dijital günlük web uygulamasıdır. 
+Vizyonumuz; mobil MVP'mizde (Mood Diary) kanıtladığımız o güçlü Doğal Dil İşleme (NLP) ve Firestore altyapısını, web platformuna taşıyarak kullanıcılara cihazdan bağımsız, kesintisiz bir deneyim sunmaktır.
 
-1.  **Ana Ekran:**
-    * Bugünün tarihi ve güncel Streak (seri) bilgisi.
-    * Günlük yazma alanı ve canlı kelime sayacı.
-    * Takvimi açan buton ve Kaydet butonu.
-2.  **Akıllı Placeholder Sistemi (Düne Referanslı):**
-    * Dün negatifse: *"Düne göre bugün nasılsın?"*
-    * Dün pozitifse: *"Bugün de güzel bir şeyler oldu mu?"*
-    * Dün nötrse: *"Bugün neler oldu, anlatmak ister misin?"*
-    * Dün boşsa (veya ilk günse): *"Bugün neler yaşadın?"*
-3.  **Duygu Analizi ve Tema Değişimi:**
-    * Yazı kaydedildiğinde lokal algoritma çalışır ve -2 ile +2 arasında bir skor döner.
-    * Uygulamanın arayüzü (arka plan ve tonlar) bu skora göre anında değişir.
-4.  **Yönlendirici Metin (Chatbot DEĞİL):**
-    * Kayıt sonrası yargılamayan, yumuşak bir teşvik metni çıkar (Örn: Pozitif için *"Bu güzel anı biraz daha anlatmak ister misin?"*).
-5.  **Aynı Gün Tekrar Giriş:**
-    * Tema o günün skorunda kalır, yönlendirici metin o güne aittir.
-6.  **Takvim ve Özet Görünümü:**
-    * Takvimde günlerin altında o günün duygu rengini belirten noktalar bulunur.
-    * Güne tıklandığında metin, duygu durumu ve kelime sayısı görünür.
-    * Haftalık sekmesinde son 7 günün basit grafiği, streak ve ortalama kelime sayısı yer alır.
+## 2. Teknoloji Yığını (Tech Stack)
+Web MVP'mizde "YAGNI" (İhtiyacın Olmayacak) prensibini benimsedik. Ağır framework'ler (React/Vue) veya derleyiciler (Webpack/Vite) kullanmıyoruz.
+* **Frontend:** Saf HTML5, CSS3 ve ES6 Vanilla JavaScript.
+* **Backend & Veritabanı:** Firebase Firestore (NPM paketi kurmadan, doğrudan CDN üzerinden modül olarak entegre edildi).
+* **Veri Görselleştirme:** Chart.js (Ruh hali analiz grafikleri için).
 
----
-
-## 🧱 Tech Stack (Değiştirilemez)
-* **Mobil:** Expo + React Native + TypeScript
-* **Backend & DB:** Firebase (Auth + Firestore)
-* **State Management:** Zustand
-* **Takvim UI:** `react-native-calendars`
-* **Lokal Cache:** AsyncStorage (Sadece Optimistic UI için)
-* **Tasarım & Versiyon:** Figma & GitHub
-
----
-
-## 🗄️ Veri Modeli (Firestore)
-Veritabanı yapısı okuma maliyetlerini düşürmek için aşağıdaki şekilde denormalize edilmiştir. 
-
-**Koleksiyon:** `users/{uid}`
-```json
-{
-  "streak": 5,
-  "lastEntryDate": "2026-02-23",
-  "lastSentimentScore": 1
-}
-
-```
-
-**Alt Koleksiyon:** `users/{uid}/entries/{YYYY-MM-DD}` *(Doküman ID'si kesinlikle tarihtir)*
-
-```json
-{
-  "text": "Bugün harika bir gündü...",
-  "wordCount": 24,
-  "sentimentScore": 1,
-  "createdAt": "timestamp",
-  "updatedAt": "timestamp"
-}
-
-```
-
-> ⚠️ **Tarih Formatı Standardı:**  
-> Tüm günlük doküman ID’leri ve tarih karşılaştırmaları için **UTC tabanlı ISO formatı (`YYYY-MM-DD`) kullanılacaktır.**  
-> Streak hesaplamaları bu string formatı üzerinden yapılır.  
-> Cihaz saat farklarından kaynaklı edge-case'ler bu standart ile yönetilecektir.
-
----
-
-## 🧠 Mimari Kurallar & Kırmızı Çizgiler
-
-1. **Single Source of Truth:** Verinin tek ve mutlak sahibi **Firestore**'dur.
-2. **Optimistic UI:** `AsyncStorage` sadece uygulama açılışında arayüzü hızlı çizmek (hydrate) için kullanılır. Firestore'dan gelen veri her zaman lokal veriyi ezer (overwrite).
-3. **Kapsam Koruma:** Yeni büyük özellikler (feature) teklif edilemez. Mimari yaklaşım kökten değiştirilemez.
-4. **Görsellik:** Kompleks Lottie animasyonları veya ağır geçişler yoktur. Sadece renk ve ton bazlı sabit tema değişimi yapılacaktır.
-
----
-
-## 🔍 Duygu Analizi Prensipleri
-
-* **Algoritma:** Lokal, kural tabanlı (Rule-based) çalışır.
-* **Mantık:** Türkçe kelime kökleri + Negatörler (değil, yok) + Pekiştiriciler (çok, aşırı) kullanılarak hesaplanır.
-* **Kabul:** Algoritmanın %100 doğru çalışmadığı, yanılma payı olduğu peşinen kabul edilmiştir.
-* **İletişim:** Kullanıcıya kesinlikle "Sen mutsuzsun" gibi teşhis veya yargı bildiren cümleler kurulmaz. Dil daima yumuşak ve davetkârdır.
-
----
-
-## 📁 Proje Klasör Yapısı
+## 3. Klasör ve Dosya Yapısı
+Mobil projeden (`main` branch) miras kalan tüm gereksiz React Native dosyaları (`App.tsx`, `package.json`, `node_modules`, `src/` klasörü) **tamamen silinmiştir.** Projemiz şu an en saf ve hafif halindedir:
 
 ```text
-/src
-├── components/     # Buton, Kart, Input gibi tekrar kullanılabilir UI elemanları
-├── screens/        # Home, Calendar, Summary (Ana görünümler)
-├── navigation/     # React Navigation (Tab & Stack) ayarları
-├── store/          # Zustand state yönetimi (useJournalStore.ts)
-├── services/       # Firebase config, Auth ve Firestore DB işlemleri
-├── utils/          # Duygu algoritması, tarih formatlayıcılar (helpers)
-├── theme/          # Renk map'leri (ThemeMap.ts)
-├── constants/      # Kelime kökleri, placeholder havuzu, sabit metinler
-└── hooks/          # Özel mantık barındıran custom hook'lar
+/
+├── index.html       # Uygulamanın iskeleti ve DOM yapısı
+├── style.css        # Arkadaşımızın hazırladığı şık tasarım ve layout
+├── script.js        # Uygulama mantığı, NLP Algoritması ve Firebase entegrasyonu
+├── .gitignore       # Git'e dahil edilmeyecek dosyalar
+└── README.md        # SSOT (Bu dosya)
 
 ```
 
+## 4. Kullanıcı Senaryoları (User Stories)
+
+* **Canlı Duygu Analizi:** Kullanıcı günlük metnini yazarken, sistem arka planda kelimeleri analiz etmeli ve anlık olarak kullanıcının ruh halini yansıtmalıdır.
+* **Dinamik Yönlendirme:** Kullanıcının yazdığı metnin duygu skoruna göre, sistem empati kurarak ona dinamik ve akıllı bir soru (`smartQuestion`) yöneltmelidir.
+* **Bulut Senkronizasyonu:** Kullanıcı "Güvenle Kaydet" butonuna bastığında, veriler cihaz hafızasına değil, doğrudan Firestore bulut veritabanına kaydedilmeli; böylece mobil cihazından da aynı verilere erişebilmelidir.
+* **İstatistik (Dashboard):** Kullanıcı, geçmiş günlüklerinden derlenen duygu durum özetini Chart.js ile çizilmiş pasta grafiklerinde görebilmelidir.
+
+## 5. Mimari Kararlar ve Revizyonlar (Mobilden Web'e Geçiş)
+
+İlk web prototipini hazırlayan arkadaşımızın değerli katkıları üzerinden aşağıdaki "Senior" revizyonlar yapılmıştır:
+
+* **Tasarım ve UI Korundu:** CSS yapısı, açılır kapanır Sidebar ve Chart.js entegrasyonu birebir tutulmuştur.
+* **Geçici Veritabanı Çöpe Atıldı:** `localStorage` ve `btoa` tabanlı sahte/güvensiz veri saklama yöntemi iptal edilmiştir. Yerine, mobil uygulamamızla aynı koleksiyonu (`journals`) dinleyen gerçek **Firebase Firestore** bağlanmıştır.
+* **Manuel Duygu Seçimi Kaldırıldı:** Prototipteki `<select id="mood">` (Mutlu/Üzgün seçme) menüsü kaldırılmıştır.
+* **Zeki NLP (Doğal Dil İşleme) Eklendi:** Mobilde harikalar yaratan *Sliding Window (Kayan Pencere)* tabanlı Türkçe NLP algoritmamız Vanilla JS'e uyarlanmıştır. Sistem artık metni okuyarak `-2 ile +2` arasında anlık matematiksel skor üretmektedir.
+* **Canlı Tetikleyici:** NLP algoritması bir `input` dinleyicisine (Event Listener) bağlanmış, kullanıcı klavyede her tuşa bastığında duygu skoru ve `smartQuestion` (Akıllı Soru) canlı olarak güncellenecek şekilde kurgulanmıştır.
+
+## 6. Kurulum ve Çalıştırma Yönergesi
+
+Bu projeyi çalıştırmak için Node.js yüklemenize veya `npm install` yapmanıza gerek yoktur.
+
+1. `web-mvp` branch'ini bilgisayarınıza çekin (`git checkout web-mvp`).
+2. `script.js` dosyasını açıp, en üstteki `firebaseConfig` objesinin içine kendi Firebase API anahtarlarınızı girin.
+3. VS Code kullanıyorsanız **Live Server** eklentisi ile `index.html` dosyasına sağ tıklayıp "Open with Live Server" diyerek projeyi anında ayağa kaldırın.
+*(Not: Firebase Modül importları `file://` protokolünde çalışmadığı için yerel bir sunucu (localhost) üzerinden açılması şarttır.)*
+
 ---
 
-## 👥 Ekip & Rol Dağılımı
+*Geliştirme felsefemiz: Basit tut, hızlı çalıştır, kullanıcıya değer kat!* 🚀
 
-* **Kişi 1 (Lead / Scrum Master):** Proje mimarisi, Firebase entegrasyonu, lokal duygu analizi algoritması, tema sistemi mantığı, genel entegrasyon.
-* **Kişi 2 (UI / UX):** Ana ekran UI, takvim UI, tema görselleri/renkleri, placeholder/yönlendirici metinlerin yerleşimi, genel arayüz cilası (polish).
-* **Kişi 3 (Data / Logic):** Günlük CRUD işlemleri, takvim veri akışı, streak/kelime hesaplamaları, haftalık verilerin hazırlanması.
+```
 
----
-
-## ⚠️ MVP'de Bilinçli Olarak YAPILMAYACAKLAR (Out of Scope)
-
-Aşağıdaki özellikler proje takvimini korumak adına bilinçli olarak kapsam dışı bırakılmıştır:
-
-* Push Notification (Anlık bildirimler)
-* Kullanıcılar arası sosyal etkileşim veya paylaşım
-* Gelişmiş bulut yedekleme (Export/Import v2)
-* Sunucu tabanlı gelişmiş Machine Learning / NLP modelleri
-* Offline-first için özel senkronizasyon mantığı (Firebase'in default offline yeteneği yeterlidir. Firebase’in varsayılan offline cache davranışı dışında özel senkronizasyon katmanı yazılmayacaktır.)
-
----
-
-## 🧪 Test & Demo Notları
-
-* **Donanım:** Uygulama mutlaka **gerçek fiziksel cihazda** test edilecektir.
-* **UX:** Günlük yazma alanında klavye açıldığında "Kaydet" butonunun kapanmaması (KeyboardAvoidingView) sıkı test edilecektir.
-* **Ağ:** İnternetsiz ortamda yazma senaryosu test edilecektir.
-* **Sunum:** Proje sunumu için geriye dönük **1 haftalık anlamlı dummy (sahte) veri** seti önceden hazır bulundurulacaktır.
-
-## 🧭 Karar Alma Prensibi
-
-Bu dokümanda yer almayan bir konuda karar alınması gerekiyorsa:
-
-1. Önce MVP hedefine hizmet edip etmediğine bakılır  
-2. Geliştirme süresini uzatıyor mu değerlendirilir  
-3. Kullanıcıya doğrudan değer katıyor mu sorgulanır  
-
-Bu üç kriterden en az ikisi sağlanmıyorsa özellik eklenmez.
+***
