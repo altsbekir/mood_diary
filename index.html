@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>PsyNote | Akıllı Dijital Günlük</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="sidebar" id="sidebar">
+  <h3>PsyNote</h3>
+  <button onclick="showDiary()">📖 Günlüklerim</button>
+  <button onclick="showHome()">🏠 Ana Sayfa</button>
+  <button onclick="logout()">🚪 Çıkış</button>
+</div>
+
+<div class="topbar">
+  <span onclick="toggleMenu()">☰</span>
+  <h2>PsyNote</h2>
+</div>
+
+<div class="container">
+
+<div id="loginBox">
+  <input type="text" id="username" placeholder="Kullanıcı adı">
+  <input type="password" id="password" placeholder="Şifre">
+  <button onclick="login()">Giriş Yap</button>
+</div>
+
+<div id="app">
+
+<h3 id="date"></h3>
+
+<select id="mood" onchange="smartQuestion()">
+  <option>😄 Mutlu</option>
+  <option>🙂 Normal</option>
+  <option>😞 Üzgün</option>
+  <option>😣 Stresli</option>
+</select>
+
+<p id="smart"></p>
+
+<textarea id="note" placeholder="Bugünkü düşüncelerini yaz..."></textarea>
+
+<button onclick="saveNote()">🔐 Güvenle Kaydet</button>
+
+<h4>📊 Ruh Analizi</h4>
+<canvas id="chart"></canvas>
+<p id="analysis"></p>
+
+</div>
+
+<div id="diaryPage" style="display:none"></div>
+
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
