@@ -1,5 +1,4 @@
-// src/utils/sentiment.ts
-// BU DOSYA TYPESCRİPT FORMATINDADIR. ALGORİTMAYI YAZAN KİŞİ GEMİNİ'DEN BUNUN JAVASCRİPT HALİNİ İSTESİN.
+// js/sentiment.js
 
 const positiveRoots = [
   'sev', 'mutlu', 'harik', 'güzel', 'iyi', 'muhteşem', 'başarı', 'huzur', 
@@ -18,7 +17,9 @@ const negationRegex = /(m[aeıioöuü]y?|m[ae]z|m[ae]d|s[ıiuü]z)/;
 // Duyguyu tersine çeviren yardımcı fiiller
 const auxiliaries = ['hisset', 'ol', 'geç', 'yap', 'kal', 'bırak', 'ver'];
 
-export function analyzeSentiment(text: string): number {
+export function analyzeSentiment(text) {
+  if (!text) return 0; // Güvenlik kontrolü
+
   const lowerText = text.toLocaleLowerCase('tr-TR');
   
   // 1. ŞAHANE HAMLE: Cümleyi virgül, nokta, ünlem ve soru işaretlerinden "yan cümleciklere" ayırıyoruz!
@@ -96,7 +97,7 @@ export function analyzeSentiment(text: string): number {
     totalScore += clauseScore;
   }
 
-  // MVP Limitlerimiz
+  // MVP Limitlerimiz (-2 ile +2 arası)
   if (totalScore >= 2) return 2;
   if (totalScore <= -2) return -2;
   return totalScore;
