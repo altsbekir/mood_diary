@@ -1,61 +1,56 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8">
-<title>PsyNote | Akıllı Dijital Günlük</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="stylesheet" href="style.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PsyNote | Akıllı Dijital Günlük</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-<div class="sidebar" id="sidebar">
-  <h3>PsyNote</h3>
-  <button onclick="showDiary()">📖 Günlüklerim</button>
-  <button onclick="showHome()">🏠 Ana Sayfa</button>
-  <button onclick="logout()">🚪 Çıkış</button>
+<div class="sidebar" id="sidebar" style="left: -260px;">
+    <h3>PsyNote Menu</h3>
+    <button onclick="showHome()">🏠 Ana Sayfa</button>
+    <button onclick="showDiary()">📖 Günlüklerim</button>
+    <hr style="border: 0.5px solid #334155; margin: 20px 0;">
+    <button onclick="logout()" style="background: #ef4444;">🚪 Çıkış Yap</button>
 </div>
 
 <div class="topbar">
-  <span onclick="toggleMenu()">☰</span>
-  <h2>PsyNote</h2>
+    <span onclick="toggleMenu()" style="cursor: pointer; font-size: 30px; padding: 0 10px;">☰</span>
+    <h2 style="margin: 0; flex-grow: 1; text-align: center; letter-spacing: 2px;">PSYNOTE</h2>
 </div>
 
 <div class="container">
+    <div id="app">
+        <div id="analysis" style="padding: 15px; border-radius: 12px; margin-bottom: 15px; font-weight: 600; text-align: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);">
+            Düşüncelerini özgür bırak... 🌿
+        </div>
 
-<div id="loginBox">
-  <input type="text" id="username" placeholder="Kullanıcı adı">
-  <input type="password" id="password" placeholder="Şifre">
-  <button onclick="login()">Giriş Yap</button>
+        <p id="smart" style="font-style: italic; color: #94a3b8; text-align: center;">Bugün aklından geçen en baskın düşünce neydi?</p>
+
+        <textarea id="note" placeholder="Buraya yazmaya başladığında duygunu analiz edeceğim..."></textarea>
+
+        <button onclick="saveNote()" style="font-weight: bold; font-size: 16px;">🔐 GÜVENLE KAYDET</button>
+
+        <div class="chart-container" style="margin-top: 30px; background: rgba(15, 23, 42, 0.4); padding: 20px; border-radius: 20px;">
+            <h4 style="text-align: center; margin-top: 0;">Genel Ruh Hali Analizi</h4>
+            <canvas id="moodChart"></canvas>
+        </div>
+    </div>
+
+    <div id="diaryPage" style="display: none;">
+        <div style="display: flex; align-items: center; margin-bottom: 20px;">
+            <button onclick="showHome()" style="background: #475569; width: auto; padding: 8px 15px;">⬅ Geri</button>
+            <h3 style="margin: 0 0 0 15px;">Geçmiş Notların</h3>
+        </div>
+        <div id="diaryList">
+            </div>
+    </div>
 </div>
 
-<div id="app">
+<script type="module" src="js/main.js"></script>
 
-<h3 id="date"></h3>
-
-<select id="mood" onchange="smartQuestion()">
-  <option>😄 Mutlu</option>
-  <option>🙂 Normal</option>
-  <option>😞 Üzgün</option>
-  <option>😣 Stresli</option>
-</select>
-
-<p id="smart"></p>
-
-<textarea id="note" placeholder="Bugünkü düşüncelerini yaz..."></textarea>
-
-<button onclick="saveNote()">🔐 Güvenle Kaydet</button>
-
-<h4>📊 Ruh Analizi</h4>
-<canvas id="chart"></canvas>
-<p id="analysis"></p>
-
-</div>
-
-<div id="diaryPage" style="display:none"></div>
-
-</div>
-
-<script src="script.js"></script>
 </body>
 </html>
