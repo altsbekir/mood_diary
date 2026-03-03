@@ -1,3 +1,5 @@
+---
+
 ```markdown
 # 🧠 Mood Diary: Akıllı Dijital Günlük & NLP Duygu Analiz Motoru
 
@@ -40,6 +42,8 @@ Projeyi kendi bilgisayarınızda çalıştırmak için aşağıdaki adımları i
      // ...diğer bilgiler
    };
 
+```
+
 4. VS Code üzerinden **Live Server** eklentisiyle `index.html` dosyasını çalıştırın.
 
 ### Mobil Versiyonu (React Native) İçin:
@@ -78,6 +82,8 @@ Web tarafında, gereksiz framework karmaşasından kaçınılarak saf (Vanilla) 
     ├── main.js          # DOM manipülasyonu, Firebase CRUD işlemleri ve Streak algoritması
     ├── sentiment.js     # Dışa aktarılabilir (Export) 5'li NLP Kayan Pencere Algoritması
     └── firebaseConfig.js# Güvenli Firebase API yapılandırması (Git'ten izole)
+
+```
 
 ### Mobil Mimarisi Klasör Yapısı
 
