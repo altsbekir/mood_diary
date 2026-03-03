@@ -1,4 +1,4 @@
-```markdown
+```
 # 🧠 Mood Diary: Akıllı Dijital Günlük & NLP Duygu Analiz Motoru
 
 Mood Diary, kullanıcıların metin tabanlı günlük girişlerini özel bir Doğal Dil İşleme (NLP) algoritmasıyla analiz ederek anlık duygu durumunu (sentiment) ölçen, web ve mobil platformlarda gerçek zamanlı senkronizasyonla çalışan akıllı bir dijital günlük uygulamasıdır.
@@ -102,9 +102,5 @@ Mobil tarafta React Native ve TypeScript kullanılarak, temiz kod prensiplerine 
 │       ├── dateHelpers.ts       # Tarih formatlama ve streak yardımcı fonksiyonları
 │       └── sentiment.ts         # TypeScript ile tiplendirilmiş Kayan Pencere NLP algoritması
 └── package.json                 # React Native bağımlılıkları ve scriptler
-
-```
-
-```
 
 ```
