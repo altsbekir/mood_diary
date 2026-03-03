@@ -79,8 +79,6 @@ Web tarafında, gereksiz framework karmaşasından kaçınılarak saf (Vanilla) 
     ├── sentiment.js     # Dışa aktarılabilir (Export) 5'li NLP Kayan Pencere Algoritması
     └── firebaseConfig.js# Güvenli Firebase API yapılandırması (Git'ten izole)
 
-```
-
 ### Mobil Mimarisi Klasör Yapısı
 
 Mobil tarafta React Native ve TypeScript kullanılarak, temiz kod prensiplerine (Clean Code) uygun modüler bir yapı kurulmuştur:
