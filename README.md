@@ -1,4 +1,4 @@
-```
+```markdown
 # 🧠 Mood Diary: Akıllı Dijital Günlük & NLP Duygu Analiz Motoru
 
 Mood Diary, kullanıcıların metin tabanlı günlük girişlerini özel bir Doğal Dil İşleme (NLP) algoritmasıyla analiz ederek anlık duygu durumunu (sentiment) ölçen, web ve mobil platformlarda gerçek zamanlı senkronizasyonla çalışan akıllı bir dijital günlük uygulamasıdır.
@@ -39,8 +39,6 @@ Projeyi kendi bilgisayarınızda çalıştırmak için aşağıdaki adımları i
      projectId: "SENIN_PROJECT_ID",
      // ...diğer bilgiler
    };
-
-```
 
 4. VS Code üzerinden **Live Server** eklentisiyle `index.html` dosyasını çalıştırın.
 
