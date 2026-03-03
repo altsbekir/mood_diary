@@ -39,10 +39,13 @@ Projeyi kendi bilgisayarınızda çalıştırmak için aşağıdaki adımları i
      projectId: "SENIN_PROJECT_ID",
      // ...diğer bilgiler
    };
-   ```
+
+```
+
 4. VS Code üzerinden **Live Server** eklentisiyle `index.html` dosyasını çalıştırın.
 
 ### Mobil Versiyonu (React Native) İçin:
+
 1. Mobil kodların bulunduğu klasöre (örn: `mood_diary`) gidin. (Mobil için branch: solo-release-test)
 2. Bağımlılıkları yükleyin: `npm install`
 3. (Sadece iOS için) Pod'ları yükleyin: `cd ios && pod install && cd ..`
@@ -55,7 +58,9 @@ Mood Diary'nin kalbi, -2 ile +2 arasında puanlama yapan NLP motorudur.
 
 * **Adım 1:** Metin kutusuna düşüncelerinizi yazmaya başlayın.
 * **Adım 2 (Canlı Analiz):** Algoritma kelimeleri, olumsuzluk eklerini ("değil", "hiç", "-ma/me") ve pekiştiricileri ("çok", "aşırı") anlık olarak okur.
-    * *Örnek Girdi:* "Bugün her şey **çok güzel** gidiyor." -> Sistem "güzel" (+1) kelimesini bulur, "çok" pekiştiricisini görüp skoru 2 ile çarpar (+2).
+* *Örnek Girdi:* "Bugün her şey **çok güzel** gidiyor." -> Sistem "güzel" (+1) kelimesini bulur, "çok" pekiştiricisini görüp skoru 2 ile çarpar (+2).
+
+
 * **Adım 3 (Dinamik Arayüz):** Skor +2 olduğu an tüm uygulamanın arayüzü "Zümrüt Yeşiline" döner. (Skor -2 olsaydı "Koyu Şarap Rengine" dönecekti).
 * **Adım 4 (Oyunlaştırma):** "Kaydet" butonuna basıldığında veri Firebase'e aktarılır. "Günlüklerim" sekmesinde geçmiş verileriniz web tarafında Chart.js ile istatistiksel pastaya dönüşür ve en üstte **"🔥 X Gündür Aralıksız Yazıyorsun"** seriniz (Streak) hesaplanıp gösterilir.
 
@@ -75,6 +80,7 @@ Web tarafında, gereksiz framework karmaşasından kaçınılarak saf (Vanilla) 
     ├── main.js          # DOM manipülasyonu, Firebase CRUD işlemleri ve Streak algoritması
     ├── sentiment.js     # Dışa aktarılabilir (Export) 5'li NLP Kayan Pencere Algoritması
     └── firebaseConfig.js# Güvenli Firebase API yapılandırması (Git'ten izole)
+
 ```
 
 ### Mobil Mimarisi Klasör Yapısı
@@ -96,6 +102,9 @@ Mobil tarafta React Native ve TypeScript kullanılarak, temiz kod prensiplerine 
 │       ├── dateHelpers.ts       # Tarih formatlama ve streak yardımcı fonksiyonları
 │       └── sentiment.ts         # TypeScript ile tiplendirilmiş Kayan Pencere NLP algoritması
 └── package.json                 # React Native bağımlılıkları ve scriptler
+
+```
+
 ```
 
 ```
