@@ -1,85 +1,104 @@
-# 🧠 PsyNote Web MVP - Single Source of Truth (SSOT)
+```markdown
+# 🧠 Mood Diary: Akıllı Dijital Günlük & NLP Duygu Analiz Motoru
 
-Bu belge, "Mood Diary" mobil uygulamamızın web platformundaki kardeşi olan **PsyNote** projesi için Tek Gerçeklik Kaynağıdır (SSOT). Ekibimizdeki herkesin mimari kararları, klasör yapısını ve proje vizyonunu net bir şekilde anlaması için hazırlanmıştır.
+Mood Diary, kullanıcıların metin tabanlı günlük girişlerini özel bir Doğal Dil İşleme (NLP) algoritmasıyla analiz ederek anlık duygu durumunu (sentiment) ölçen, web ve mobil platformlarda gerçek zamanlı senkronizasyonla çalışan akıllı bir dijital günlük uygulamasıdır.
 
----
+## 🧠 2. Proje Ne İşe Yarıyor?
 
-## 1. Proje Özeti ve Vizyon
-**PsyNote**, kullanıcıların günlük düşüncelerini kaydettikleri, yazdıkları metin üzerinden canlı duygu analizi yapan ve ruh hali istatistiklerini görselleştiren akıllı bir dijital günlük web uygulamasıdır. 
-Vizyonumuz; mobil MVP'mizde (Mood Diary) kanıtladığımız o güçlü Doğal Dil İşleme (NLP) ve Firestore altyapısını, web platformuna taşıyarak kullanıcılara cihazdan bağımsız, kesintisiz bir deneyim sunmaktır.
+* **Çözdüğü Problem:** İnsanların gün içindeki yoğunluktan dolayı kendi psikolojik durumlarını (farkındalıklarını) takip edememesi ve klasik günlük tutma alışkanlığının sürdürülebilirlik açısından zayıf kalması.
+* **Kimler İçin Yapıldı:** Kişisel farkındalığını (mindfulness) artırmak isteyen bireyler, psikolojik durumunu istatistiksel olarak takip etmek isteyenler ve danışanlarının duygu durum haritasını görmek isteyen terapistler.
+* **Gerçek Hayatta Kullanımı:** Kullanıcı uygulamayı açar (ister telefondan ister bilgisayardan), o günkü düşüncelerini serbestçe yazar. Sistem arka planda bu metni analiz eder; arayüz, kişinin ruh haline göre anında renk (tema) değiştirir. Yazılan notlar Firebase bulutuna kaydedilir ve "Ateşli Seri (Streak)" gibi oyunlaştırma elementleriyle kullanıcının her gün yazması teşvik edilir.
 
-## 2. Teknoloji Yığını (Tech Stack)
-Web MVP'mizde "YAGNI" (İhtiyacın Olmayacak) prensibini benimsedik. Ağır framework'ler (React/Vue) veya derleyiciler (Webpack/Vite) kullanmıyoruz.
-* **Frontend:** Saf HTML5, CSS3 ve ES6 Vanilla JavaScript (Modüler yapı).
-* **Backend & Veritabanı:** Firebase Firestore (NPM paketi kurmadan, doğrudan CDN üzerinden modül olarak entegre edildi).
-* **Veri Görselleştirme:** Chart.js (Ruh hali analiz grafikleri için).
+## ⚙️ 3. Kullanılan Teknolojiler
 
-## 3. Klasör ve Dosya Yapısı
-Mobil projeden (`main` branch) miras kalan tüm gereksiz React Native dosyaları (`App.tsx`, `package.json`, `node_modules`, `src/` klasörü) **tamamen silinmiştir.** Web projemizde kod karmaşasını önlemek için **"Separation of Concerns" (Sorumlulukların Ayrılığı)** prensibi benimsenmiş ve JavaScript kodlarımız modüllere (ES6 Modules) bölünmüştür. Projemizin güncel ve modüler yapısı şöyledir:
+Proje, çapraz platform (cross-platform) hizmet verebilmek adına modüler bir yapıda tasarlanmıştır:
+
+**Ortak Altyapı (Backend & AI):**
+* **Veritabanı:** Firebase Firestore (Gerçek zamanlı NoSQL veritabanı).
+* **Duygu Analiz Motoru:** Vanilla JS / TypeScript ile sıfırdan yazılmış, "Kayan Pencere (Sliding Window)" ve "Pekiştirici (Amplifier)" destekli özel NLP algoritması.
+
+**Web Platformu (Frontend):**
+* **Core:** HTML5, CSS3 (Glassmorphism & Dinamik Dark Mode), Vanilla JavaScript (ES6+).
+* **Veri Görselleştirme:** Chart.js (Doughnut grafiği).
+
+**Mobil Platform (App):**
+* **Framework:** React Native.
+* **Dil:** TypeScript (Tip güvenliği ve NLP entegrasyonu için).
+
+## 🚀 4. Kurulum (Installation)
+
+Projeyi kendi bilgisayarınızda çalıştırmak için aşağıdaki adımları izleyin.
+
+### Web Versiyonu İçin:
+1. Projeyi klonlayın: `git clone https://github.com/kullaniciadiniz/psynote.git`
+2. `web-mvp` (veya `main`) branch'inde olduğunuza emin olun.
+3. `js/` klasörü içinde `firebaseConfig.js` adında bir dosya oluşturun ve kendi Firebase API bilgilerinizi ekleyin:
+   ```javascript
+   export const firebaseConfig = {
+     apiKey: "SENIN_API_KEY",
+     projectId: "SENIN_PROJECT_ID",
+     // ...diğer bilgiler
+   };
+
+4. VS Code üzerinden **Live Server** eklentisiyle `index.html` dosyasını çalıştırın.
+
+### Mobil Versiyonu (React Native) İçin:
+
+1. Mobil kodların bulunduğu klasöre (örn: `mood_diary`) gidin. (Mobil için branch: solo-release-test)
+2. Bağımlılıkları yükleyin: `npm install`
+3. (Sadece iOS için) Pod'ları yükleyin: `cd ios && pod install && cd ..`
+4. Firebase yapılandırma dosyalarınızı (`google-services.json` ve `GoogleService-Info.plist`) ilgili Android ve iOS klasörlerine ekleyin.
+5. Uygulamayı başlatın: `npx react-native run-android` veya `npx react-native run-ios`
+
+## ▶️ 5. Kullanım (Usage)
+
+Mood Diary'nin kalbi, -2 ile +2 arasında puanlama yapan NLP motorudur.
+
+* **Adım 1:** Metin kutusuna düşüncelerinizi yazmaya başlayın.
+* **Adım 2 (Canlı Analiz):** Algoritma kelimeleri, olumsuzluk eklerini ("değil", "hiç", "-ma/me") ve pekiştiricileri ("çok", "aşırı") anlık olarak okur.
+* *Örnek Girdi:* "Bugün her şey **çok güzel** gidiyor." -> Sistem "güzel" (+1) kelimesini bulur, "çok" pekiştiricisini görüp skoru 2 ile çarpar (+2).
+
+
+* **Adım 3 (Dinamik Arayüz):** Skor +2 olduğu an tüm uygulamanın arayüzü "Zümrüt Yeşiline" döner. (Skor -2 olsaydı "Koyu Şarap Rengine" dönecekti).
+* **Adım 4 (Oyunlaştırma):** "Kaydet" butonuna basıldığında veri Firebase'e aktarılır. "Günlüklerim" sekmesinde geçmiş verileriniz web tarafında Chart.js ile istatistiksel pastaya dönüşür ve en üstte **"🔥 X Gündür Aralıksız Yazıyorsun"** seriniz (Streak) hesaplanıp gösterilir.
+
+## 🏗️ 7. Proje Mimarisi
+
+Projemiz, kod tekrarını önlemek ve hem web hem mobilde aynı iş mantığını (business logic) yürütmek üzerine inşa edilmiştir.
+
+### Web Mimarisi Klasör Yapısı
+
+Web tarafında, gereksiz framework karmaşasından kaçınılarak saf (Vanilla) JS mimarisi tercih edilmiştir:
 
 ```text
-/
-├── index.html            # Uygulamanın iskeleti ve DOM yapısı (type="module" içerir)
-├── style.css             # Hazırlanan şık tasarım ve layout
-├── js/                   # İş mantığımızın parçalara ayrıldığı modül klasörü
-│   ├── firebaseConfig.js # Sadece Firebase başlatma ve ayar kodlarını içerir
-│   ├── sentiment.js      # Sadece "Sliding Window" tabanlı Türkçe NLP algoritmamızı içerir
-│   └── main.js           # Orkestra Şefi: UI kontrolleri, event'ler ve veritabanı kayıt işlemleri
-├── .gitignore            # Git'e dahil edilmeyecek dosyalar (.env vb.)
-└── README.md             # SSOT (Bu dosya)
+/mood_diary
+│── index.html           # Ana uygulama arayüzü (Tek Sayfa - SPA mantığı)
+│── style.css            # Glassmorphism ve geçişli arka plan tasarımları
+└── /js
+    ├── main.js          # DOM manipülasyonu, Firebase CRUD işlemleri ve Streak algoritması
+    ├── sentiment.js     # Dışa aktarılabilir (Export) 5'li NLP Kayan Pencere Algoritması
+    └── firebaseConfig.js# Güvenli Firebase API yapılandırması (Git'ten izole)
 
 ```
 
-## 4. Kullanıcı Senaryoları (User Stories)
+### Mobil Mimarisi Klasör Yapısı
 
-* **Canlı Duygu Analizi:** Kullanıcı günlük metnini yazarken, sistem arka planda kelimeleri analiz etmeli ve anlık olarak kullanıcının ruh halini yansıtmalıdır.
-* **Dinamik Yönlendirme:** Kullanıcının yazdığı metnin duygu skoruna göre, sistem empati kurarak ona dinamik ve akıllı bir soru (`smartQuestion`) yöneltmelidir.
-* **Bulut Senkronizasyonu:** Kullanıcı "Güvenle Kaydet" butonuna bastığında, veriler cihaz hafızasına değil, doğrudan Firestore bulut veritabanına kaydedilmeli; böylece mobil cihazından da aynı verilere erişebilmelidir.
-* **İstatistik (Dashboard):** Kullanıcı, geçmiş günlüklerinden derlenen duygu durum özetini Chart.js ile çizilmiş pasta grafiklerinde görebilmelidir.
+Mobil tarafta React Native ve TypeScript kullanılarak, temiz kod prensiplerine (Clean Code) uygun modüler bir yapı kurulmuştur:
 
-## 5. Mimari Kararlar ve Revizyonlar (Mobilden Web'e Geçiş)
+```text
+/mood_diary
+├── /src
+│   ├── /screens
+│   │   └── HomeScreen.tsx       # Ana günlük giriş ve duygu analiz ekranı
+│   ├── /services
+│   │   └── firebaseConfig.ts    # Firebase Firestore bağlantısı ve bulut işlemleri
+│   ├── /store
+│   │   └── useJournalStore.ts   # Global durum yönetimi (State Management)
+│   ├── /theme
+│   │   └── ThemeMap.ts          # NLP skoruna göre dinamik değişen tema ve renk ayarları
+│   └── /utils
+│       ├── dateHelpers.ts       # Tarih formatlama ve streak yardımcı fonksiyonları
+│       └── sentiment.ts         # TypeScript ile tiplendirilmiş Kayan Pencere NLP algoritması
+└── package.json                 # React Native bağımlılıkları ve scriptler
 
-İlk web prototipini hazırlayan arkadaşımızın değerli katkıları üzerinden aşağıdaki "Senior" revizyonlar yapılmıştır:
-
-* **Tasarım ve UI Korundu:** CSS yapısı, açılır kapanır Sidebar ve Chart.js entegrasyonu birebir tutulmuştur.
-* **Geçici Veritabanı Çöpe Atıldı:** `localStorage` ve `btoa` tabanlı sahte/güvensiz veri saklama yöntemi iptal edilmiştir. Yerine, mobil uygulamamızla aynı koleksiyonu (`journals`) dinleyen gerçek **Firebase Firestore** bağlanmıştır.
-* **Manuel Duygu Seçimi Kaldırıldı:** Prototipteki `<select id="mood">` (Mutlu/Üzgün seçme) menüsü kaldırılmıştır.
-* **Zeki NLP (Doğal Dil İşleme) Eklendi:** Mobilde harikalar yaratan *Sliding Window (Kayan Pencere)* tabanlı Türkçe NLP algoritmamız Vanilla JS'e uyarlanmıştır. Sistem artık metni okuyarak `-2 ile +2` arasında anlık matematiksel skor üretmektedir.
-* **Canlı Tetikleyici:** NLP algoritması bir `input` dinleyicisine (Event Listener) bağlanmış, kullanıcı klavyede her tuşa bastığında duygu skoru ve `smartQuestion` (Akıllı Soru) canlı olarak güncellenecek şekilde kurgulanmıştır.
-
-## 6. Kurulum ve Çalıştırma Yönergesi
-
-Bu projeyi çalıştırmak için Node.js yüklemenize veya `npm install` yapmanıza gerek yoktur.
-
-1. `web-mvp` branch'ini bilgisayarınıza çekin (`git checkout web-mvp`).
-2. `script.js` dosyasını açıp, en üstteki `firebaseConfig` objesinin içine kendi Firebase API anahtarlarınızı girin.
-3. VS Code kullanıyorsanız **Live Server** eklentisi ile `index.html` dosyasına sağ tıklayıp "Open with Live Server" diyerek projeyi anında ayağa kaldırın.
-*(Not: Firebase Modül importları `file://` protokolünde çalışmadığı için yerel bir sunucu (localhost) üzerinden açılması şarttır.)*
-
-## 7. Takım Çalışması ve Veri Sözleşmesi (Data Contract)
-Bu proje Frontend (UI/UX) ve Backend (Firebase/Mantık) olarak asenkron iki koldan geliştirilmektedir. Geliştiricilerin birbirini bloklamaması için aradaki tek iletişim dili aşağıdaki **Veri Şeması** olacaktır.
-
-**Frontend Geliştiricisinin Sorumluluğu:** Veritabanının bağlanmasını beklemeden, tasarımlarını (Geçmiş günlük kartları, Chart.js grafikleri) aşağıdaki JSON formatındaki uydurma (mock) verilerle kodlamak.
-**Backend Geliştiricisinin Sorumluluğu:** Firebase'den çekilen veya kaydedilen verilerin yapısal olarak kesinlikle bu şemaya uymasını sağlamak.
-
-### Standart Günlük (Journal) Objesi Şeması:
-\`\`\`json
-{
-  "id": "1a2b3c4d5e",             // Firebase Belge ID'si (String)
-  "date": "2026-03-02",           // YYYY-MM-DD formatında standart tarih (String)
-  "text": "Bugün çok harikaydı!", // Kullanıcının yazdığı metin (String)
-  "sentimentScore": 2,            // NLP'den gelen duygu skoru: -2 ile +2 arası (Number)
-  "wordCount": 4                  // Metindeki kelime sayısı (Number)
-}
-\`\`\`
-*(Not: Frontend geliştiricisi tema renklerini ve Chart.js istatistiklerini sadece `sentimentScore` değerine bakarak hesaplayacaktır.)*
-
-## 8. Güvenlik ve Firebase Kurulumu
-Projede Vanilla JS kullanıldığı için `.env` dosyası tarayıcı tarafından doğrudan okunamaz. Bu yüzden Firebase şifreleri Git'e yüklenmeyecektir.
-1. Projeyi ilk kez indirdiğinizde `js/firebaseConfig.example.js` dosyasının adını `js/firebaseConfig.js` olarak değiştirin.
-2. İçindeki boş alanlara kendi yerel test Firebase bilgilerinizi veya ekip liderinden aldığınız bilgileri girin.
-3. `js/firebaseConfig.js` dosyası `.gitignore` listesindedir, bu yüzden yaptığınız şifre değişiklikleri GitHub'a yansımaz.
-
----
-
-*Geliştirme felsefemiz: Basit tut, hızlı çalıştır, kullanıcıya değer kat!* 🚀
+```
